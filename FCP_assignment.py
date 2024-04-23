@@ -1,7 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
-
+import random
+import networkx as nx 
 
 class Node:
 
@@ -21,20 +22,44 @@ class Network:
             self.nodes = nodes
 
     def get_mean_degree(self):
-
-        # Your code  for task 3 goes here
+        total_degree = sum(sum(node.connections) for node in self.nodes) #calculates the total degree of the network by summing up the connections of all nodes
+        return total_degree / len(self.nodes)
         pass
 
     def get_mean_clustering(self):
-
-        # Your code for task 3 goes here
+        total_cc = 0
+        for node in self.nodes:
+            neighbours = [self.nodes[i] for i, conn in enumerate(node.connections) if conn]
+            possible_connections = len(neighbours)*(len(neighbours)-1)/2 # calculates the possible number of connections between neighbouring nodes
+            actual_connections = sum(node.connections[nei.index] for nei in neighbours) # calculates the actual number of connections between neighbouring nodes
+            cc = actual_connections / possible_connections if possible_connections !=0 else 0
+            total_cc += cc
+        return total_cc / len(self.nodes)       
         pass
 
     def get_mean_path_length(self):
-
-        # Your code for task 3 goes here
+        total_path_length = 0
+        total_pairs = 0
+        for node in self.nodes:
+            distances = self.bfs(node)
+            total_path_length += sum(distances.values())
+        return total_path_length / (len(self.nodes)*(len(self.nodes)-1))       
         pass
 
+    def bfs(self, start_node):
+        '''
+        This function conducts a breadth first search from a start node
+        '''
+                distances = {node.index: float('inf') for node in self.nodes} # initialises the distances dictionary with all nodes having an infinite distance from the start node
+        distances[start_node.index] = 0
+        queue = [start_node]
+        while queue:
+            current_node = queue.pop()
+            for neighbour_index, conn in enumerate(current_node.connections):
+                if conn and distances[neighbour_index] == float('inf'): # updates the distance to a neighbour node if there is a connection and the distance is not yet calculated
+                    distances[neighbour_index] = distances[current_node.index] + 1
+                    queue.append(self.nodes[neighbour_index])
+        return distances
     def make_random_network(self, N, connection_probability):
         '''
         This function makes a *random* network of size N.
@@ -46,12 +71,36 @@ class Network:
             value = np.random.random()
             connections = [0 for _ in range(N)]
             self.nodes.append(Node(value, node_number, connections))
+        
+        for (index, node) in enumerate(self.nodes):
+            other_node_index = random.choice([i for i in range(N) if i !=index])
+            node.connections[other_node_index] = 1
+            self.nodes[other_node_index].connections[index] = 1        
 
         for (index, node) in enumerate(self.nodes):
             for neighbour_index in range(index + 1, N):
                 if np.random.random() < connection_probability:
                     node.connections[neighbour_index] = 1
                     self.nodes[neighbour_index].connections[index] = 1
+
+
+        mean_degree = self.get_mean_degree()
+        mean_clustering_coefficient = self.get_mean_clustering()
+        mean_path_length = self.get_mean_path_length()
+                  
+        print("Mean degree:", mean_degree)
+        print("Mean clustering coefficient:", mean_clustering_coefficient)
+        print("Mean path length:",mean_path_length)
+
+        G = nx.Graph()
+        for node in self.nodes:
+            G.add_node(node.index)
+            for neighbour_index, conn in enumerate(node.connections):
+                if conn:
+                    G.add_edge(node.index, neighbour_index)
+        nx.draw(G, with_labels=False)
+        plt.title("Random Network")
+        plt.show()
 
     def make_ring_network(self, N, neighbour_range=1):
 
