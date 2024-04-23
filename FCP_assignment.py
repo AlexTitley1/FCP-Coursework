@@ -247,19 +247,56 @@ def ising_main(population, alpha=None, external=0.0):
 This section contains code for the Defuant Model - task 2 in the assignment
 ==============================================================================================================
 '''
+import matplotlib.pyplot as plt
+import random
+import math
+import argparse
+MAX_PERSON = 100
+MAX_TIME = 100
 
+def defuant(beta,threshold):
+        # Initializes the comment list
+    opinion = [random.uniform(0,1) for _ in range(MAX_PERSON)]
+    # Create two subgraphs
+    fig,axe = plt.subplots(1,2)
+    # Set the title of the diagram
+    fig.suptitle('Coupling:{},Threshold:{}'.format(beta,threshold))
+    for i in range(MAX_TIME):
+        for j in range(MAX_PERSON):
+            # Select an individual A at random
+            A = random.randint (0,MAX_PERSON-1)
+            # Select a neighbor B of individual A
+            if A == 0:
+                B = 1
+            elif A == 99:
+                B = 98
+            else:
+                prob = random.uniform(0,1)
+                B = A - 1 if prob <= 0.5 else A + 1
+            # If the difference between the opinions of A and B is less than or equal to the threshold, the opinions are updated
+            if math.fabs(opinion[A] - opinion[B]) <= threshold:
+                oA = opinion[A]
+                oB = opinion[B]
+                opinion[A] = oA + beta * (oB -oA)
+                opinion[B] = oB + beta * (oA - oB)
+        # Plot the opinions of all individuals at the current time step on the scatter plot
+        x = [i for _ in range (MAX_PERSON)]
+        axe[1].scatter(x,opinion,c='red')
+        axe[1].set_ylabel('Opinion')
+    # Plot the opinion distribution on the histogram
+    axe[0].hist(opinion,bins = 10,color='blue')
+    axe[0].set_xlabel('Opinion')
 
-def defuant_main():
-
-
-    # Your code for task 2 goes here
-    pass
 
 def test_defuant():
+    defuant(0.5,0.5)
+    defuant(0.1,0.5)
+    defuant(0.5,0.1)
+    defuant(0.1,0.1)
+    plt.show()   
 
 
-    # Your code for task 2 goes here
-    pass
+
 
 
 '''
@@ -269,11 +306,18 @@ This section contains code for the main function- you should write some code for
 '''
 
 
-def main():
 
 
-    # You should write some code for handling flags here
-    pass
 
 if __name__ == "__main__":
-    main()
+    if __name__ == 'main':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-beta',default=0.3)
+    parser.add_argument('-threshold',default=0.3)
+    parser.add_argument('-test_default',action='store_true',default=False)
+    parser.add_argument('-defuant',action='store_true',default = False)
+    args = parser.parse_args()
+    if args.test_defuant:
+        test_defuant()
+    else:
+        defuant(float(args.beta),float(args.threshold))
