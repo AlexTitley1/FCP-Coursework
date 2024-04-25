@@ -2,19 +2,37 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import random
-import networkx as nx 
+import math
+import argparse
 
 class Node:
-
+    '''
+    Class representing a node in the network.
+    '''
     def __init__(self, value, number, connections=None):
+        '''
+        Function initilises a node.
+        value: the value associated with the node
+        number: index of the node
+        connections: list representing connections to other nodes, the default is None        
+        '''
         self.index = number
         self.connections = connections
         self.value = value
 
 
 class Network:
+    '''
+    Class representing a network of nodes.
+    '''
 
     def __init__(self, nodes=None):
+        '''
+        Function initialises a network.
+
+        Args:
+        nodes: list of nodes in the network, the default is None
+        '''
 
         if nodes is None:
             self.nodes = []
@@ -22,22 +40,38 @@ class Network:
             self.nodes = nodes
 
     def get_mean_degree(self):
+        '''
+        Calculates the mean degree of a network
+        '''
         total_degree = sum(sum(node.connections) for node in self.nodes) #calculates the total degree of the network by summing up the connections of all nodes
         return total_degree / len(self.nodes)
         pass
 
     def get_mean_clustering(self):
+        '''
+        Calculates the mean clustering coefficient of the network.
+        '''
         total_cc = 0
         for node in self.nodes:
             neighbours = [self.nodes[i] for i, conn in enumerate(node.connections) if conn]
-            possible_connections = len(neighbours)*(len(neighbours)-1)/2 # calculates the possible number of connections between neighbouring nodes
-            actual_connections = sum(node.connections[nei.index] for nei in neighbours) # calculates the actual number of connections between neighbouring nodes
-            cc = actual_connections / possible_connections if possible_connections !=0 else 0
+            num_neighbours = len(neighbours)
+            if num_neighbours < 2:
+                continue # skip if there is less than two neighbours
+            possible_triangles = num_neighbours * (num_neighbours -1)/2
+            actual_triangles = 0
+            for i in range(num_neighbours):
+                for j in range(i + 1, num_neighbours):
+                        if node.connections[neighbours[i].index] and node.connections[neighbours[j].index]:
+                            actual_triangles += 1
+            cc = actual_triangles / possible_triangles if possible_triangles !=0 else 0
             total_cc += cc
         return total_cc / len(self.nodes)       
         pass
 
     def get_mean_path_length(self):
+        '''
+        Calculates the mean path length of the network.
+        '''
         total_path_length = 0
         total_pairs = 0
         for node in self.nodes:
@@ -48,7 +82,7 @@ class Network:
 
     def bfs(self, start_node):
         '''
-        This function conducts a breadth first search from a start node
+        This function conducts a breadth first search from a start node.
         '''
                 distances = {node.index: float('inf') for node in self.nodes} # initialises the distances dictionary with all nodes having an infinite distance from the start node
         distances[start_node.index] = 0
@@ -68,21 +102,21 @@ class Network:
 
         self.nodes = []
         for node_number in range(N):
-            value = np.random.random()
+            value = np.random.random() # generates a random float between 0 and 1 to represent the value associated with a node
             connections = [0 for _ in range(N)]
             self.nodes.append(Node(value, node_number, connections))
-        
+            
+        # ensures that every node has at least one connection to another node
         for (index, node) in enumerate(self.nodes):
             other_node_index = random.choice([i for i in range(N) if i !=index])
             node.connections[other_node_index] = 1
-            self.nodes[other_node_index].connections[index] = 1        
+            self.nodes[other_node_index].connections[index] = 1
 
         for (index, node) in enumerate(self.nodes):
-            for neighbour_index in range(index + 1, N):
-                if np.random.random() < connection_probability:
+            for neighbour_index in range(index+1, N):
+                if np.random.random() < connection_probability: 
                     node.connections[neighbour_index] = 1
-                    self.nodes[neighbour_index].connections[index] = 1
-
+                    self.nodes[neighbour_index].connections[index] = 1 
 
         mean_degree = self.get_mean_degree()
         mean_clustering_coefficient = self.get_mean_clustering()
@@ -92,16 +126,18 @@ class Network:
         print("Mean clustering coefficient:", mean_clustering_coefficient)
         print("Mean path length:",mean_path_length)
 
-        G = nx.Graph()
-        for node in self.nodes:
-            G.add_node(node.index)
-            for neighbour_index, conn in enumerate(node.connections):
+        node_coordinates = {node: (np.random.uniform(0, N), np.random.uniform(0, N)) for node in range(N)}
+
+        plt.figure()
+        for node in range (N):
+            x1, y1 = node_coordinates[node]
+            plt.plot(x1, y1,'o', color='black') # plot nodes
+            for neighbour_index, conn in enumerate(self.nodes[node].connections):
                 if conn:
-                    G.add_edge(node.index, neighbour_index)
-        nx.draw(G, with_labels=False)
+                    x2, y2 = node_coordinates[neighbour_index]
+                    plt.plot([x1,x2], [y1,y2],'-', color='black')
         plt.title("Random Network")
         plt.show()
-
     def make_ring_network(self, N, neighbour_range=1):
 
         # Your code  for task 4 goes here
@@ -187,6 +223,22 @@ def test_networks():
 
     print("All tests passed")
 
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-network", type=int)
+    parser.add_argument("-test_network", action = "store_true")
+
+    args = parser.parse_args()
+
+    if args.test_network:
+        test_network()
+    elif args.network:
+        network=Network()
+        network.make_random_network(args.network, 0.3)
+        
+
+if __name__ == "__main__":
+    main()
 
 '''
 ==============================================================================================================
