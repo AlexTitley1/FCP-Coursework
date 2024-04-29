@@ -389,9 +389,9 @@ def defuant(beta,threshold):
             A = random.randint (0,MAX_PERSON-1)
             # Select a neighbor B of individual A
             if A == 0:
-                B = 1
+                B = 1 or 99
             elif A == 99:
-                B = 98
+                B = 98 or 0
             else:
                 prob = random.uniform(0,1)
                 B = A - 1 if prob <= 0.5 else A + 1
