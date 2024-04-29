@@ -139,14 +139,35 @@ class Network:
         plt.title("Random Network")
         plt.show()
     def make_ring_network(self, N, neighbour_range=1):
-
-        # Your code  for task 4 goes here
-        pass
+       self.nodes = [Node(0, x) for x in range(N)]
+        for node in self.nodes:
+            node.connections = [0 for _ in range(0,N)]
+            for neighbour_index in range((neighbour_range * -1), neighbour_range + 1):
+                if neighbour_index != 0:
+                    node.connections[((node.index + neighbour_index)%N)] = 1
 
     def make_small_world_network(self, N, re_wire_prob=0.2):
-
-        # Your code for task 4 goes here
-        pass
+        self.make_ring_network(N,2)
+        edges = []
+        for node in self.nodes:
+            for neighbour_pos in range(node.index,N):
+                if node.connections[neighbour_pos] == 1:
+                    edges.append((node.index,neighbour_pos))
+        for edge in edges:
+            if np.random.random() <= re_wire_prob:
+                #print("Pass")
+                start_node,end_node = self.nodes[edge[0]], self.nodes[edge[1]]
+                combined_connections = [a or b for a, b in zip(start_node.connections, end_node.connections)]
+                possible_rewires = [i for i in range(0,N) if combined_connections[i] == 0]
+                try:
+                    chosen_rewire = possible_rewires[np.random.randint(0,len(possible_rewires)+1)]
+                    new_end_node = self.nodes[chosen_rewire]
+                    start_node.connections[edge[1]] = 0
+                    end_node.connections[edge[0]] = 0
+                    start_node.connections[chosen_rewire] = 1
+                    new_end_node.connections[edge[0]] = 1
+                except:
+                    pass
 
     def plot(self):
 
