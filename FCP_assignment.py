@@ -197,7 +197,7 @@ class Network:
                     ax.plot((node_x, neighbour_x), (node_y, neighbour_y), color='black')
 
 
-def test_networks():
+def test_network():
     # Ring network
     nodes = []
     num_nodes = 10
