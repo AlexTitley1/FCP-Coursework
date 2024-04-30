@@ -249,23 +249,6 @@ def test_network():
 
     print("All tests passed")
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-network", type=int)
-    parser.add_argument("-test_network", action = "store_true")
-
-    args = parser.parse_args()
-
-    if args.test_network:
-        test_network()
-    elif args.network:
-        network=Network()
-        network.make_random_network(args.network, 0.3)
-        
-
-if __name__ == "__main__":
-    main()
-
 '''
 ==============================================================================================================
 This section contains code for the Ising Model - task 1 in the assignment
@@ -429,18 +412,29 @@ This section contains code for the main function- you should write some code for
 '''
 
 
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-network", type=int)
+    parser.add_argument("-test_network", action = "store_true")
+    parser.add_argument('-beta',default=0.3)
+    parser.add_argument('-threshold',default=0.3)
+    parser.add_argument('-test_default',action='store_true',default=False)
+    parser.add_argument('-defuant',action='store_true',default = False)
+    args = parser.parse_args()
 
-
+    if args.test_network:
+        test_network()
+    elif args.network:
+        network=Network()
+        network.make_random_network(args.network, 0.3)
+    elif args.test_defuant:
+        test_defuant()
+    elif:
+        defuant(float(args.beta), float(args.threshold))
+        
 
 if __name__ == "__main__":
-    if __name__ == 'main':
-        parser = argparse.ArgumentParser()
-        parser.add_argument('-beta',default=0.3)
-        parser.add_argument('-threshold',default=0.3)
-        parser.add_argument('-test_default',action='store_true',default=False)
-        parser.add_argument('-defuant',action='store_true',default = False)
-        args = parser.parse_args()
-        if args.test_defuant:
-            test_defuant()
-        else:
-            defuant(float(args.beta),float(args.threshold))
+    main()
+
+
+   
