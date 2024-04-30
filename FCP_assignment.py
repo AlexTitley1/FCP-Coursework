@@ -253,7 +253,7 @@ def test_network():
 ==============================================================================================================
 This section contains code for the Ising Model - task 1 in the assignment
 ==============================================================================================================
-
+'''
 import numpy as np
 import matplotlib.pyplot as plt
 import argparse
