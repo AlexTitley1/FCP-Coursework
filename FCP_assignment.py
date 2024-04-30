@@ -93,7 +93,12 @@ class Network:
                 if conn and distances[neighbour_index] == float('inf'): # updates the distance to a neighbour node if there is a connection and the distance is not yet calculated
                     distances[neighbour_index] = distances[current_node.index] + 1
                     queue.append(self.nodes[neighbour_index])
+            for node in self.nodes:
+                if node.connections[current_node.index] and distances[node.index] == float('inf'):
+                    distances[node.index] = distances[current_node.index] = 1
+                    queue.append(node)        
         return distances
+        
     def make_random_network(self, N, connection_probability):
         '''
         This function makes a *random* network of size N.
