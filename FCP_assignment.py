@@ -267,7 +267,110 @@ def calculate_agreement(population, row, col, external=0.0):
             change_in_agreement (float)
     '''
 
-    # Your code for task 1 goes here
+import numpy as np
+import matplotlib.pyplot as plt
+import argparse
+
+
+def calculate_agreement(x, y, grid,H):
+    total_agreement = 0
+    neighbors = [(x-1, y), (x+1, y), (x, y-1), (x, y+1)]
+    for nx, ny in neighbors:
+        if 0 <= nx < grid.shape[0] and 0 <= ny < grid.shape[1]:
+            total_agreement += grid[x, y] * grid[nx, ny]
+    total_agreement += H * grid[x, y]
+    return total_agreement
+
+
+def ising_step(grid, alpha, H):
+    x, y = np.random.randint(0, len(grid)), np.random.randint(0, len(grid[0]))
+    Di = calculate_agreement(x, y, grid, H)
+
+    if Di < 0 or np.random.random() < np.exp(-Di / alpha):
+        grid[x, y] *= -1
+
+
+
+def plot_ising(im, population):
+    # Update the image data
+    new_im = np.array([[-1 if val == -1 else 1 for val in rows] for rows in population], dtype=np.int8)
+    im.set_data(new_im)
+    # Pause to update the image
+    plt.pause(0.1)
+
+def test_ising():
+
+    print("Testing ising model calculations")
+    population = -np.ones((3, 3))
+    H_test = 0
+    assert(calculate_agreement(1,1, population, H_test)==4), "Test 1"
+
+    population[1, 1] = 1.
+    assert(calculate_agreement(1,1, population, H_test)==-4), "Test 2"
+
+    population[0, 1] = 1.
+    assert(calculate_agreement(1,1, population, H_test)==-2), "Test 3"
+
+    population[1, 0] = 1.
+    assert(calculate_agreement(1,1, population, H_test)==0), "Test 4"
+
+    population[2, 1] = 1.
+    assert(calculate_agreement(1,1, population, H_test)==2), "Test 5"
+
+    population[1, 2] = 1.
+    assert(calculate_agreement(1,1, population, H_test)==4), "Test 6"
+
+    H_test = 1
+
+    "Testing external pull"
+    population = -np.ones((3, 3))
+    assert(calculate_agreement(1,1, population, H_test)== 3), "Test 7"
+    assert(calculate_agreement(1,1, population, -1)==5), "Test 8"
+    assert (calculate_agreement(1,1, population, 10) == 14), "Test 9"
+    assert (calculate_agreement(1,1, population, -10) == -6), "Test 10"
+
+    print("Tests passed")
+
+
+def ising_main(population, alpha,H):
+    plt.ion()
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.set_axis_off()
+    im = ax.imshow(population, interpolation='none', cmap='RdPu_r')
+
+    for frame in range(100):
+        for step in range(1000):
+            ising_step(population, alpha, H)
+        plot_ising(im, population)
+        plt.pause(0.001)
+    plt.ioff()
+    plt.show()
+
+def main():
+    parser = argparse.ArgumentParser(description='Run the Ising model simulations with various settings.')
+    parser.add_argument('--ising_model', action='store_true', help='Run the Ising model with default settings')
+    parser.add_argument('--external', type=float, default=0.0, help='Specify the strength of external influence')
+    parser.add_argument('--alpha', type=float, default=1.0, help='Specify the alpha value for agreement calculation')
+    parser.add_argument('--test_ising', action='store_true', help='Run the Ising model test functions')
+
+    # Process the provided data
+    args = parser.parse_args()
+
+    if args.alpha <= 0:
+        parser.error("The alpha parameter must be greater than 0.")
+
+    if args.test_ising:
+        test_ising()
+    elif args.ising_model:
+        population = np.random.choice([-1, 1], size=(100, 100))
+        ising_main(population, args.alpha, args.external)
+    else:
+        parser.print_help()
+
+if __name__ == '__main__':
+    main()
+
 
     return np.random * population
 
