@@ -216,8 +216,8 @@ def test_network():
 
     print("Testing ring network")
     assert (network.get_mean_degree() == 2), network.get_mean_degree()
-    assert (network.get_clustering() == 0), network.get_clustering()
-    assert (network.get_path_length() == 2.777777777777778), network.get_path_length()
+    assert (network.get_mean_clustering() == 0), network.get_mean_clustering()
+    assert (network.get_mean_path_length() == 2.777777777777778), network.get_mean_path_length()
 
     nodes = []
     num_nodes = 10
@@ -230,8 +230,8 @@ def test_network():
 
     print("Testing one-sided network")
     assert (network.get_mean_degree() == 1), network.get_mean_degree()
-    assert (network.get_clustering() == 0), network.get_clustering()
-    assert (network.get_path_length() == 5), network.get_path_length()
+    assert (network.get_mean_clustering() == 0), network.get_mean_clustering()
+    assert (network.get_mean_path_length() == 5), network.get_mean_path_length()
 
     nodes = []
     num_nodes = 10
@@ -244,8 +244,8 @@ def test_network():
 
     print("Testing fully connected network")
     assert (network.get_mean_degree() == num_nodes - 1), network.get_mean_degree()
-    assert (network.get_clustering() == 1), network.get_clustering()
-    assert (network.get_path_length() == 1), network.get_path_length()
+    assert (network.get_mean_clustering() == 1), network.get_mean_clustering()
+    assert (network.get_mean_path_length() == 1), network.get_mean_path_length()
 
     print("All tests passed")
 
@@ -374,10 +374,6 @@ def ising_main(population, alpha=None, external=0.0):
 This section contains code for the Defuant Model - task 2 in the assignment
 ==============================================================================================================
 '''
-import matplotlib.pyplot as plt
-import random
-import math
-import argparse
 MAX_PERSON = 100
 MAX_TIME = 100
 
@@ -438,13 +434,13 @@ This section contains code for the main function- you should write some code for
 
 if __name__ == "__main__":
     if __name__ == 'main':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-beta',default=0.3)
-    parser.add_argument('-threshold',default=0.3)
-    parser.add_argument('-test_default',action='store_true',default=False)
-    parser.add_argument('-defuant',action='store_true',default = False)
-    args = parser.parse_args()
-    if args.test_defuant:
-        test_defuant()
-    else:
-        defuant(float(args.beta),float(args.threshold))
+        parser = argparse.ArgumentParser()
+        parser.add_argument('-beta',default=0.3)
+        parser.add_argument('-threshold',default=0.3)
+        parser.add_argument('-test_default',action='store_true',default=False)
+        parser.add_argument('-defuant',action='store_true',default = False)
+        args = parser.parse_args()
+        if args.test_defuant:
+            test_defuant()
+        else:
+            defuant(float(args.beta),float(args.threshold))
