@@ -373,45 +373,38 @@ This section contains code for the Defuant Model - task 2 in the assignment
 MAX_PERSON = 100
 MAX_TIME = 100
 
-def defuant(beta,threshold):
-        # Initializes the comment list
-    opinion = [random.uniform(0,1) for _ in range(MAX_PERSON)]
+def defuant(beta, threshold):
+    # Initializes the comment list
+    opinion = [random.uniform(0, 1) for _ in range(MAX_PERSON)]
     # Create two subgraphs
-    fig,axe = plt.subplots(1,2)
+    fig, axe = plt.subplots(1, 2)
     # Set the title of the diagram
-    fig.suptitle('Coupling:{},Threshold:{}'.format(beta,threshold))
+    fig.suptitle(f'Coupling: {beta}, Threshold: {threshold}')
+
     for i in range(MAX_TIME):
         for j in range(MAX_PERSON):
             # Select an individual A at random
-            A = random.randint (0,MAX_PERSON-1)
-            # Select a neighbor B of individual A
-            if A == 0:
-               B = random.choice([1, MAX_PERSON - 1])
-            elif A == 99:
-                B = random.choice([0, MAX_PERSON - 2])
-            else:
-                prob = random.uniform(0,1)
-                B = A - 1 if prob <= 0.5 else A + 1
-            # If the difference between the opinions of A and B is less than or equal to the threshold, the opinions are updated
-            if math.fabs(opinion[A] - opinion[B]) <= threshold:
-                oA = opinion[A]
-                oB = opinion[B]
-                opinion[A] = oA + beta * (oB -oA)
+            A = random.randint(0, MAX_PERSON - 1)
+            B = random.choice([A - 1, A + 1]) if 0 < A < MAX_PERSON - 1 else (
+                random.choice([1, MAX_PERSON - 1]) if A == 0 else random.choice([0, MAX_PERSON - 2]))
+            if abs(opinion[A] - opinion[B]) <= threshold:
+                oA, oB = opinion[A], opinion[B]
+                opinion[A] = oA + beta * (oB - oA)
                 opinion[B] = oB + beta * (oA - oB)
         # Plot the opinions of all individuals at the current time step on the scatter plot
-        x = [i for _ in range (MAX_PERSON)]
-        axe[1].scatter(x,opinion,c='red')
+        axe[1].scatter([i] * MAX_PERSON, opinion, c='red')
         axe[1].set_ylabel('Opinion')
     # Plot the opinion distribution on the histogram
-    axe[0].hist(opinion,bins = 10,color='blue')
+    axe[0].hist(opinion, bins=10, color='blue')
     axe[0].set_xlabel('Opinion')
+    plt.show()
 
 
 def test_defuant():
     defuant(0.5,0.5)
     defuant(0.1,0.5)
     defuant(0.5,0.1)
-    defuant(0.1,0.1)
+    defuant(0.1,0.2)
     plt.show()   
 
 
@@ -424,30 +417,19 @@ This section contains code for the main function- you should write some code for
 ==============================================================================================================
 '''
 
-
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-network", type=int)
-    parser.add_argument("-test_network", action = "store_true")
-    parser.add_argument('-beta',default=0.3)
-    parser.add_argument('-threshold',default=0.3)
-    parser.add_argument('-test_default',action='store_true',default=False)
-    parser.add_argument('-defuant',action='store_true',default = False)
+    parser.add_argument('-beta', type=float, default=0.2, help='Coupling coefficient')
+    parser.add_argument('-threshold', type=float, default=0.2, help='Opinion difference threshold')
+    parser.add_argument('-defuant', action='store_true', help='Run the Deffuant model')
+
     args = parser.parse_args()
 
-    if args.test_network:
-        test_network()
-    elif args.network:
-        network=Network()
-        network.make_random_network(args.network, 0.3)
-    elif args.test_defuant:
-        test_defuant()
-    elif:
-        defuant(float(args.beta), float(args.threshold))
-        
+    if args.defuant:
+        defuant(args.beta, args.threshold)
 
-if __name__ == "__main__":
+
+if __name__ == '__main__':
     main()
-
 
    
