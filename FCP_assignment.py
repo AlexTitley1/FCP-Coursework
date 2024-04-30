@@ -55,7 +55,7 @@ class Network:
         for node in self.nodes:
             neighbours = [self.nodes[i] for i, conn in enumerate(node.connections) if conn]
             num_neighbours = len(neighbours)
-            if num_neighbours < 2:
+            if num_neighbours <= 2:
                 continue # skip if there is less than two neighbours
             possible_triangles = num_neighbours * (num_neighbours -1)/2
             actual_triangles = 0
