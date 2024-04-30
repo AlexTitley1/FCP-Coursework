@@ -84,7 +84,7 @@ class Network:
         '''
         This function conducts a breadth first search from a start node.
         '''
-                distances = {node.index: float('inf') for node in self.nodes} # initialises the distances dictionary with all nodes having an infinite distance from the start node
+        distances = {node.index: float('inf') for node in self.nodes} # initialises the distances dictionary with all nodes having an infinite distance from the start node
         distances[start_node.index] = 0
         queue = [start_node]
         while queue:
