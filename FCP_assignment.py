@@ -59,7 +59,7 @@ class Network:
                 continue # skip if there is less than two neighbours
             possible_triangles = num_neighbours * (num_neighbours -1)/2
             actual_triangles = 0
-            for i in range(num_neighbours):
+            for i in range(1,num_neighbours):
                 for j in range(i + 1, num_neighbours):
                         if node.connections[neighbours[i].index] and node.connections[neighbours[j].index]:
                             actual_triangles += 1
