@@ -335,11 +335,11 @@ def ising_main(population, alpha,H):
     plt.show()
 
 def main():
-    parser = argparse.ArgumentParser(description='Run the Ising model simulations with various settings.')
-    parser.add_argument('--ising_model', action='store_true', help='Run the Ising model with default settings')
-    parser.add_argument('--external', type=float, default=0.0, help='Specify the strength of external influence')
-    parser.add_argument('--alpha', type=float, default=1.0, help='Specify the alpha value for agreement calculation')
-    parser.add_argument('--test_ising', action='store_true', help='Run the Ising model test functions')
+    parser = argparse.ArgumentParser(description='Run the ising model simulations using settings.')
+    parser.add_argument('--ising_model', action='store_true', help='Run the ising model simulation using default settings.')
+    parser.add_argument('--external', type=float, default=0.0, help='Set the strength of the external influence on the model.')
+    parser.add_argument('--alpha', type=float, default=1.0, help='Set the alpha value used in the agreement calculation.')
+    parser.add_argument('--test_ising', action='store_true', help='Run the ising model test functions to ensure integrity.')
 
     # Process the provided data
     args = parser.parse_args()
