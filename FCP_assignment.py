@@ -489,7 +489,7 @@ def main():
     parser.add_argument("-network", type=int)
     parser.add_argument("-test_network", action = "store_true")
     parser.add_argument('-use_network', type=int, default=10, help='Size of the network')
-    parser.add_argument('-ising_model', action='store_true', help='Run Ising model')
+    parser.add_argument('-ising', action='store_true', help='Run Ising model')
     parser.add_argument('-deffuant', action='store_true', help='Run Deffuant model')    
     
     args = parser.parse_args()
@@ -509,7 +509,7 @@ def main():
     elif args.network:
         network=Network()
         network.make_random_network(args.network, 0.3) 
-    elif args.ising_model:
+    elif args.ising:
         net.make_small_world_network(args.use_network, 0.2)
         plot_network(net, model='ising', num_frames=100, interval=100)
     elif args.deffuant:
