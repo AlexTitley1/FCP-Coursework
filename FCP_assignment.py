@@ -508,7 +508,20 @@ def main():
     parser = argparse.ArgumentParser(description='Run Ising or Deffuant model on a network.')
     parser.add_argument('-use_network', type=int, default=10, help='Size of the network')
     parser.add_argument('-ising_model', action='store_true', help='Run Ising model')
-    parser.add_argument('-deffuant', action='store_true
+    parser.add_argument('-deffuant', action='store_true', help='Run Deffuant model')
+
+    args = parser.parse_args()
+
+    net = Network()
+    if args.ising_model:
+        net.make_small_world_network(args.use_network, 0.2)
+        plot_network(net, model='ising', num_frames=100, interval=100)
+    elif args.deffuant:
+        net.make_small_world_network(args.use_network, 0.2)
+        plot_network(net, model='deffuant', num_frames=100, interval=100)
+
+if __name__ == '__main__':
+    main()
 
 def main():
     parser = argparse.ArgumentParser()
