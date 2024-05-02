@@ -416,6 +416,99 @@ def test_defuant():
 This section contains code for the main function- you should write some code for handling flags here
 ==============================================================================================================
 '''
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.patches as patches
+from matplotlib.animation import FuncAnimation
+import argparse
+import networkx as nx  # Import networkx to create and manipulate complex networks
+
+class Node:
+    def __init__(self, value, index, connections=None):
+        """Initialize a node with a value, an index, and an optional list of connections."""
+        self.value = value
+        self.index = index
+        self.connections = connections if connections is not None else []
+
+class Network:
+    def __init__(self, nodes=None):
+        """Initialize a network with an optional list of nodes."""
+        self.nodes = nodes if nodes is not None else []
+
+    def make_random_network(self, N, connection_probability):
+        """Generate a random network with N nodes and a given probability of connection between nodes."""
+        self.nodes = [Node(np.random.random(), i, []) for i in range(N)]
+        for i in range(N):
+            for j in range(i + 1, N):
+                if np.random.random() < connection_probability:
+                    self.nodes[i].connections.append(j)
+                    self.nodes[j].connections.append(i)
+
+    def make_small_world_network(self, N, rewiring_prob):
+        """Create a small world network with N nodes and a specific rewiring probability."""
+        G = nx.watts_strogatz_graph(N, k=4, p=rewiring_prob)  # Use Watts-Strogatz model
+        self.nodes = [Node(np.random.choice([-1, 1]), i, []) for i in range(N)]
+        for i, j in G.edges():
+            self.nodes[i].connections.append(j)
+            self.nodes[j].connections.append(i)
+
+    def ising_model_update(self):
+        """Update node values based on the Ising model: nodes take the sign of the sum of their neighbors' values."""
+        for node in self.nodes:
+            total_influence = sum(self.nodes[i].value for i in node.connections)
+            node.value = 1 if total_influence >= 0 else -1
+
+    def deffuant_model_update(self, threshold=0.3):
+        """Update node values based on the Deffuant model: nodes average their values if their opinions are close enough."""
+        for node in self.nodes:
+            for neighbor in node.connections:
+                if abs(node.value - self.nodes[neighbor].value) < threshold:
+                    mid_value = (node.value + self.nodes[neighbor].value) / 2
+                    node.value = mid_value
+                    self.nodes[neighbor].value = mid_value
+
+def plot_network(network, model='ising', num_frames=50, interval=200):
+    """Plot the network and animate it using the specified model."""
+    fig, ax = plt.subplots()
+    num_nodes = len(network.nodes)
+    radius = 10  # Define the radius for laying out nodes in a circle
+
+    # Position nodes in a circle for better visualization
+    angles = np.linspace(0, 2 * np.pi, num_nodes, endpoint=False)
+    x = radius * np.cos(angles)
+    y = radius * np.sin(angles)
+
+    # Initialize plot elements
+    node_plot = ax.scatter(x, y, c=[node.value for node in network.nodes], cmap='viridis', s=100)
+    lines = []
+    for i, node in enumerate(network.nodes):
+        for conn_index in node.connections:
+            line, = ax.plot([x[i], x[conn_index]], [y[i], y[conn_index]], '-', color='black', alpha=0.5)
+            lines.append(line)
+
+    circle = patches.Circle((0, 0), radius, edgecolor='orange', facecolor='none', linewidth=2)
+    ax.add_patch(circle)
+    ax.set_aspect('equal')
+    ax.axis('off')
+
+    def update(frame):
+        """Update function for animation, applies model updates to node values."""
+        if model == 'ising':
+            network.ising_model_update()
+        elif model == 'deffuant':
+            network.deffuant_model_update()
+        node_plot.set_array(np.array([node.value for node in network.nodes]))
+        return node_plot, *lines
+
+    ani = FuncAnimation(fig, update, frames=num_frames, interval=interval, blit=True)
+    plt.show()
+
+def main():
+    """Main function to handle argument parsing and execute the network simulation."""
+    parser = argparse.ArgumentParser(description='Run Ising or Deffuant model on a network.')
+    parser.add_argument('-use_network', type=int, default=10, help='Size of the network')
+    parser.add_argument('-ising_model', action='store_true', help='Run Ising model')
+    parser.add_argument('-deffuant', action='store_true
 
 def main():
     parser = argparse.ArgumentParser()
