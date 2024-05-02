@@ -45,7 +45,8 @@ class Network:
         '''
         Calculates the mean degree of a network
         '''
-        total_degree = sum(sum(node.connections) for node in self.nodes) #calculates the total degree of the network by summing up the connections of all nodes
+        total_degree = sum(sum(node.connections) for node in self.nodes) 
+        # Calculates the total degree of the network by summing up the connections of all nodes.
         return total_degree / len(self.nodes)
         pass
 
@@ -55,10 +56,11 @@ class Network:
         '''
         total_cc = 0
         for node in self.nodes:
-            neighbours = [self.nodes[i] for i, conn in enumerate(node.connections) if conn == 1]
+            neighbours = [self.nodes[i] for i, conn in enumerate(node.connections) if conn == 1] 
+            # Finds the neighbours of the current node by checking the connections of each node.
             num_neighbours = len(neighbours)
             if num_neighbours <= 2:
-                continue  # skip if there is less than two neighbours
+                continue  # Skip if there are less than two neighbours.
             possible_triangles = num_neighbours * (num_neighbours - 1) / 2
             actual_triangles = 0
             for i in range(0,self.N):
@@ -66,6 +68,7 @@ class Network:
                     if node.connections[i] and node.connections[j]:
                         actual_triangles += 1
             cc = actual_triangles / possible_triangles if possible_triangles != 0 else 0
+            # Iterates over all pairs of nodes and counts and count the number of triangles that include the current node.
             total_cc += cc
         return total_cc / len(self.nodes)
         pass
@@ -77,6 +80,8 @@ class Network:
         distances = []
         for node in self.nodes:
             distances.extend(self.bfs(node))
+            # Uses the breadth first search to find the shortest paths from the current node to all other nodes.
+            # Distances are then added to the list 'distances'.
         return round(int(sum(distances)) / (len(self.nodes) * (len(self.nodes) - 1)),15)
 
     def bfs(self, start_node):
@@ -86,8 +91,10 @@ class Network:
         distances[start_node.index] = 0
 
         while queue != []:
+        # Loop until the queu is empty.
             current_node = queue.pop(0)
             visitited.add(current_node)
+            # Remove the first node from the queue and mark as visited.
             temp = self.nodes[current_node]
             neighbours = [x for x, value in enumerate(temp.connections) if value == 1]
             for x in neighbours:
@@ -96,10 +103,7 @@ class Network:
                     distances[x] = min(distances[current_node] + 1,distances[x])
 
         return distances
-
-    
-
-    
+        # Returns an array of distances from the starting node to all other nodes.
    
     def make_random_network(self, N, connection_probability):
         '''
@@ -109,16 +113,17 @@ class Network:
 
         self.nodes = []
         for node_number in range(N):
-            value = np.random.random() # generates a random float between 0 and 1 to represent the value associated with a node
+            value = np.random.random() 
+            # Generates a random float between 0 and 1 to represent the value associated with a node.
             connections = [0 for _ in range(N)]
             self.nodes.append(Node(value, node_number, connections))
             
-        # ensures that every node has at least one connection to another node
         for (index, node) in enumerate(self.nodes):
             other_node_index = random.choice([i for i in range(N) if i !=index])
             node.connections[other_node_index] = 1
             self.nodes[other_node_index].connections[index] = 1
-
+            # Ensures that every node has at least one connection to another node.
+        
         for (index, node) in enumerate(self.nodes):
             for neighbour_index in range(index+1, N):
                 if np.random.random() < connection_probability: 
@@ -134,7 +139,8 @@ class Network:
         print("Mean path length:",mean_path_length)
 
         node_coordinates = {node: (np.random.uniform(0, N), np.random.uniform(0, N)) for node in range(N)}
-
+        # Assigns a random position to each node in the network. 
+        
         plt.figure()
         for node in range (N):
             x1, y1 = node_coordinates[node]
@@ -145,6 +151,7 @@ class Network:
                     plt.plot([x1,x2], [y1,y2],'-', color='black')
         plt.title("Random Network")
         plt.show()
+
     def make_ring_network(self, N, neighbour_range=1):
         self.nodes = [Node(np.random.random, x) for x in range(N)]
         for node in self.nodes:
