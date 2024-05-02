@@ -478,26 +478,6 @@ def plot_network(network, model='ising', num_frames=50, interval=200):
     plt.show()
 
 def main():
-    """Main function to handle argument parsing and execute the network simulation."""
-    parser = argparse.ArgumentParser(description='Run Ising or Deffuant model on a network.')
-    parser.add_argument('-use_network', type=int, default=10, help='Size of the network')
-    parser.add_argument('-ising_model', action='store_true', help='Run Ising model')
-    parser.add_argument('-deffuant', action='store_true', help='Run Deffuant model')
-
-    args = parser.parse_args()
-
-    net = Network()
-    if args.ising_model:
-        net.make_small_world_network(args.use_network, 0.2)
-        plot_network(net, model='ising', num_frames=100, interval=100)
-    elif args.deffuant:
-        net.make_small_world_network(args.use_network, 0.2)
-        plot_network(net, model='deffuant', num_frames=100, interval=100)
-
-if __name__ == '__main__':
-    main()
-
-def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-beta', type=float, default=0.2, help='Coupling coefficient')
     parser.add_argument('-threshold', type=float, default=0.2, help='Opinion difference threshold')
@@ -508,6 +488,9 @@ def main():
     parser.add_argument('-test_ising', action='store_true', help='Run the ising model test functions to ensure integrity.')
     parser.add_argument("-network", type=int)
     parser.add_argument("-test_network", action = "store_true")
+    parser.add_argument('-use_network', type=int, default=10, help='Size of the network')
+    parser.add_argument('-ising_model', action='store_true', help='Run Ising model')
+    parser.add_argument('-deffuant', action='store_true', help='Run Deffuant model')    
     
     args = parser.parse_args()
 
@@ -525,7 +508,14 @@ def main():
         test_network()
     elif args.network:
         network=Network()
-        network.make_random_network(args.network, 0.3)        
+        network.make_random_network(args.network, 0.3) 
+    elif args.ising_model:
+        net.make_small_world_network(args.use_network, 0.2)
+        plot_network(net, model='ising', num_frames=100, interval=100)
+    elif args.deffuant:
+        net.make_small_world_network(args.use_network, 0.2)
+        plot_network(net, model='deffuant', num_frames=100, interval=100)
+        
 if __name__ == '__main__':
     main()
 
