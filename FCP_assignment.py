@@ -146,7 +146,7 @@ class Network:
         plt.title("Random Network")
         plt.show()
     def make_ring_network(self, N, neighbour_range=1):
-        self.nodes = [Node(0, x) for x in range(N)]
+        self.nodes = [Node(np.random.random, x) for x in range(N)]
         for node in self.nodes:
             node.connections = [0 for _ in range(0,N)]
             for neighbour_index in range((neighbour_range * -1), neighbour_range + 1):
