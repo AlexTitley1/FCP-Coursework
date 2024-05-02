@@ -144,7 +144,7 @@ class Network:
         plt.title("Random Network")
         plt.show()
     def make_ring_network(self, N, neighbour_range=1):
-       self.nodes = [Node(0, x) for x in range(N)]
+        self.nodes = [Node(0, x) for x in range(N)]
         for node in self.nodes:
             node.connections = [0 for _ in range(0,N)]
             for neighbour_index in range((neighbour_range * -1), neighbour_range + 1):
@@ -502,7 +502,6 @@ def main():
     parser.add_argument('-beta', type=float, default=0.2, help='Coupling coefficient')
     parser.add_argument('-threshold', type=float, default=0.2, help='Opinion difference threshold')
     parser.add_argument('-defuant', action='store_true', help='Run the Deffuant model')
-    parser = argparse.ArgumentParser(description='Run the ising model simulations using settings.')
     parser.add_argument('-ising_model', action='store_true', help='Run the ising model simulation using default settings.')
     parser.add_argument('-external', type=float, default=0.0, help='Set the strength of the external influence on the model.')
     parser.add_argument('-alpha', type=float, default=1.0, help='Set the alpha value used in the agreement calculation.')
