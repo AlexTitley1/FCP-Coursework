@@ -331,13 +331,8 @@ def ising_main(population, alpha,H):
     plt.ioff()
     plt.show()
 
-
-
-    return np.random * population
-
-
-
-
+    new_population = np.random.choice([-1, 1], size=population.shape)
+    return new_population
 
 '''
 ==============================================================================================================
