@@ -493,7 +493,7 @@ def main():
     parser.add_argument('-deffuant', action='store_true', help='Run Deffuant model')    
     
     args = parser.parse_args()
-
+    net = Network()
     if args.defuant:
         defuant(args.beta, args.threshold)
     elif args.alpha <= 0:
