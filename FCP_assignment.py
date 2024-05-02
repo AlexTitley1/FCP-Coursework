@@ -34,10 +34,12 @@ class Network:
         nodes: list of nodes in the network, the default is None
         '''
 
-        if nodes is None:
+         if nodes is None:
             self.nodes = []
+            self.N = 0
         else:
             self.nodes = nodes
+            self.N = len(nodes)
 
     def get_mean_degree(self):
         '''
@@ -47,58 +49,58 @@ class Network:
         return total_degree / len(self.nodes)
         pass
 
-    def get_mean_clustering(self):
+        def get_mean_clustering(self):
         '''
         Calculates the mean clustering coefficient of the network.
         '''
         total_cc = 0
         for node in self.nodes:
-            neighbours = [self.nodes[i] for i, conn in enumerate(node.connections) if conn]
+            neighbours = [self.nodes[i] for i, conn in enumerate(node.connections) if conn == 1]
             num_neighbours = len(neighbours)
             if num_neighbours <= 2:
-                continue # skip if there is less than two neighbours
-            possible_triangles = num_neighbours * (num_neighbours -1)/2
+                continue  # skip if there is less than two neighbours
+            possible_triangles = num_neighbours * (num_neighbours - 1) / 2
             actual_triangles = 0
-            for i in range(1,num_neighbours):
-                for j in range(i + 1, num_neighbours):
-                        if node.connections[neighbours[i].index] and node.connections[neighbours[j].index]:
-                            actual_triangles += 1
-            cc = actual_triangles / possible_triangles if possible_triangles !=0 else 0
+            for i in range(0,self.N):
+                for j in range(i + 1, self.N):
+                    if node.connections[i] and node.connections[j]:
+                        actual_triangles += 1
+            cc = actual_triangles / possible_triangles if possible_triangles != 0 else 0
             total_cc += cc
-        return total_cc / len(self.nodes)       
+        return total_cc / len(self.nodes)
         pass
 
     def get_mean_path_length(self):
         '''
         Calculates the mean path length of the network.
         '''
-        total_path_length = 0
-        total_pairs = 0
+        distances = []
         for node in self.nodes:
-            distances = self.bfs(node)
-            total_path_length += sum(distances.values())
-        return total_path_length / (len(self.nodes)*(len(self.nodes)-1))       
-        pass
+            distances.extend(self.bfs(node))
+        return round(int(sum(distances)) / (len(self.nodes) * (len(self.nodes) - 1)),15)
 
     def bfs(self, start_node):
-        '''
-        This function conducts a breadth first search from a start node.
-        '''
-        distances = {node.index: float('inf') for node in self.nodes} # initialises the distances dictionary with all nodes having an infinite distance from the start node
+        visitited = set()
+        queue = [start_node.index]
+        distances = np.full((self.N,1),np.inf)
         distances[start_node.index] = 0
-        queue = [start_node]
-        while queue:
-            current_node = queue.pop()
-            for neighbour_index, conn in enumerate(current_node.connections):
-                if conn and distances[neighbour_index] == float('inf'): # updates the distance to a neighbour node if there is a connection and the distance is not yet calculated
-                    distances[neighbour_index] = distances[current_node.index] + 1
-                    queue.append(self.nodes[neighbour_index])
-            for node in self.nodes:
-                if node.connections[current_node.index] and distances[node.index] == float('inf'):
-                    distances[node.index] = distances[current_node.index] = 1
-                    queue.append(node)        
+
+        while queue != []:
+            current_node = queue.pop(0)
+            visitited.add(current_node)
+            temp = self.nodes[current_node]
+            neighbours = [x for x, value in enumerate(temp.connections) if value == 1]
+            for x in neighbours:
+                if x not in visitited:
+                    queue.append(x)
+                    distances[x] = min(distances[current_node] + 1,distances[x])
+
         return distances
-        
+
+    
+
+    
+   
     def make_random_network(self, N, connection_probability):
         '''
         This function makes a *random* network of size N.
@@ -206,6 +208,7 @@ def test_network():
     # Ring network
     nodes = []
     num_nodes = 10
+    self.N = num_nodes
     for node_number in range(num_nodes):
         connections = [0 for val in range(num_nodes)]
         connections[(node_number - 1) % num_nodes] = 1
