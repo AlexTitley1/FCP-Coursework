@@ -254,9 +254,6 @@ def test_network():
 This section contains code for the Ising Model - task 1 in the assignment
 ==============================================================================================================
 '''
-import numpy as np
-import matplotlib.pyplot as plt
-import argparse
 
 
 def calculate_agreement(x, y, grid,H):
@@ -334,29 +331,6 @@ def ising_main(population, alpha,H):
     plt.ioff()
     plt.show()
 
-def main():
-    parser = argparse.ArgumentParser(description='Run the ising model simulations using settings.')
-    parser.add_argument('--ising_model', action='store_true', help='Run the ising model simulation using default settings.')
-    parser.add_argument('--external', type=float, default=0.0, help='Set the strength of the external influence on the model.')
-    parser.add_argument('--alpha', type=float, default=1.0, help='Set the alpha value used in the agreement calculation.')
-    parser.add_argument('--test_ising', action='store_true', help='Run the ising model test functions to ensure integrity.')
-
-    # Process the provided data
-    args = parser.parse_args()
-
-    if args.alpha <= 0:
-        parser.error("The alpha parameter must be greater than 0.")
-
-    if args.test_ising:
-        test_ising()
-    elif args.ising_model:
-        population = np.random.choice([-1, 1], size=(100, 100))
-        ising_main(population, args.alpha, args.external)
-    else:
-        parser.print_help()
-
-if __name__ == '__main__':
-    main()
 
 
     return np.random * population
@@ -528,14 +502,31 @@ def main():
     parser.add_argument('-beta', type=float, default=0.2, help='Coupling coefficient')
     parser.add_argument('-threshold', type=float, default=0.2, help='Opinion difference threshold')
     parser.add_argument('-defuant', action='store_true', help='Run the Deffuant model')
-
+    parser = argparse.ArgumentParser(description='Run the ising model simulations using settings.')
+    parser.add_argument('-ising_model', action='store_true', help='Run the ising model simulation using default settings.')
+    parser.add_argument('-external', type=float, default=0.0, help='Set the strength of the external influence on the model.')
+    parser.add_argument('-alpha', type=float, default=1.0, help='Set the alpha value used in the agreement calculation.')
+    parser.add_argument('-test_ising', action='store_true', help='Run the ising model test functions to ensure integrity.')
+    parser.add_argument("-network", type=int)
+    parser.add_argument("-test_network", action = "store_true")
+    
     args = parser.parse_args()
 
     if args.defuant:
         defuant(args.beta, args.threshold)
+    elif args.alpha <= 0:
+        parser.error("The alpha parameter must be greater than 0.")
 
-
+    elif args.test_ising:
+        test_ising()
+    elif args.ising_model:
+        population = np.random.choice([-1, 1], size=(100, 100))
+        ising_main(population, args.alpha, args.external)
+    elif args.test_network:
+        test_network()
+    elif args.network:
+        network=Network()
+        network.make_random_network(args.network, 0.3)        
 if __name__ == '__main__':
     main()
 
-   
