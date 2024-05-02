@@ -257,6 +257,10 @@ This section contains code for the Ising Model - task 1 in the assignment
 
 
 def calculate_agreement(x, y, grid,H):
+    '''
+    Calculates the total consistency of a cell with its neighbouring cells, adjusted by the external field H.
+    '''
+
     total_agreement = 0
     neighbors = [(x-1, y), (x+1, y), (x, y-1), (x, y+1)]
     for nx, ny in neighbors:
@@ -304,14 +308,13 @@ def test_ising():
     population[1, 2] = 1.
     assert(calculate_agreement(1,1, population, H_test)==4), "Test 6"
 
-    H_test = 1
 
     "Testing external pull"
     population = -np.ones((3, 3))
-    assert(calculate_agreement(1,1, population, H_test)== 3), "Test 7"
-    assert(calculate_agreement(1,1, population, -1)==5), "Test 8"
-    assert (calculate_agreement(1,1, population, 10) == 14), "Test 9"
-    assert (calculate_agreement(1,1, population, -10) == -6), "Test 10"
+    assert (calculate_agreement(1,1, population, 1)== 3), "Test 7"
+    assert (calculate_agreement(1,1, population, -1)==5), "Test 8"
+    assert (calculate_agreement(1,1, population, 10) == -6), "Test 9"
+    assert (calculate_agreement(1,1, population, -2) == 6), "Test 10"
 
     print("Tests passed")
 
@@ -330,9 +333,6 @@ def ising_main(population, alpha,H):
         plt.pause(0.001)
     plt.ioff()
     plt.show()
-
-    new_population = np.random.choice([-1, 1], size=population.shape)
-    return new_population
 
 '''
 ==============================================================================================================
