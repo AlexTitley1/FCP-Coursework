@@ -457,29 +457,6 @@ def ising_model(network, steps=1000, temperature=1.0):
             energy_change = 2 * node.value * sum(network.nodes[neighbor].value for neighbor in node.connections)
             if energy_change < 0 or random.random() < np.exp(-energy_change / temperature):
                 node.value *= -1
-def main():
-    parser = argparse.ArgumentParser(description="Ising Model Simulation on a Network.")
-    parser.add_argument('-size', type=int, default=20, help='Number of nodes in the network')
-    parser.add_argument('-steps', type=int, default=1000, help='Number of simulation steps')
-    parser.add_argument('-temperature', type=float, default=2.0, help='Temperature for the Ising model')
-    parser.add_argument('-neighborhood', type=int, default=2, help='Each node is connected to `neighborhood` nearest neighbors')
-    parser.add_argument('-rewiring_probability', type=float, default=0.1, help='Probability to rewire each edge')
-    parser.add_argument('-ising_model', action='store_true', help='Run the Ising model simulation.')
-    parser.add_argument('-use_network', type=int, help='Size of the network if using network model')
-
-    args = parser.parse_args()
-
-    if args.use_network:
-        network = Network(args.use_network)
-        network.make_small_world(args.neighborhood, args.rewiring_probability)
-        ising_model(network, args.steps, args.temperature)
-        network.visualize()
-    elif args.ising_model:
-        # Implement grid-based Ising model here if needed
-        print("Grid-based Ising model not implemented.")
-
-if __name__ == "__main__":
-    main()
 
 def main():
     parser = argparse.ArgumentParser()
@@ -493,8 +470,13 @@ def main():
     parser.add_argument("-network", type=int)
     parser.add_argument("-test_network", action = "store_true")
     parser.add_argument('-use_network', type=int, default=10, help='Size of the network')
-    parser.add_argument('-ising', action='store_true', help='Run Ising model')
-    parser.add_argument('-deffuant', action='store_true', help='Run Deffuant model')    
+    parser.add_argument('-size', type=int, default=20, help='Number of nodes in the network')
+    parser.add_argument('-steps', type=int, default=1000, help='Number of simulation steps')
+    parser.add_argument('-temperature', type=float, default=2.0, help='Temperature for the Ising model')
+    parser.add_argument('-neighborhood', type=int, default=2, help='Each node is connected to `neighborhood` nearest neighbors')
+    parser.add_argument('-rewiring_probability', type=float, default=0.1, help='Probability to rewire each edge')
+    parser.add_argument('-ising_model', action='store_true', help='Run the Ising model simulation.')
+    parser.add_argument('-use_network', type=int, help='Size of the network if using network model')
     
     args = parser.parse_args()
     net = Network()
@@ -502,7 +484,6 @@ def main():
         defuant(args.beta, args.threshold)
     elif args.alpha <= 0:
         parser.error("The alpha parameter must be greater than 0.")
-
     elif args.test_ising:
         test_ising()
     elif args.ising_model:
@@ -513,13 +494,14 @@ def main():
     elif args.network:
         network=Network()
         network.make_random_network(args.network, 0.3) 
-    elif args.ising:
-        net.make_small_world_network(args.use_network, 0.2)
-        plot_network(net, model='ising', num_frames=100, interval=100)
-    elif args.deffuant:
-        net.make_small_world_network(args.use_network, 0.2)
-        plot_network(net, model='deffuant', num_frames=100, interval=100)
-        
+    elif args.use_network:
+        network = Network(args.use_network)
+        network.make_small_world(args.neighborhood, args.rewiring_probability)
+        ising_model(network, args.steps, args.temperature)
+        network.visualize()
+    elif args.ising_model:
+        # Implement grid-based Ising model here if needed
+        print("Grid-based Ising model not implemented.")        
 if __name__ == '__main__':
     main()
 
