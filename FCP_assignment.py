@@ -395,92 +395,91 @@ def test_defuant():
 This section contains code for the main function- you should write some code for handling flags here
 ==============================================================================================================
 '''
+import argparse
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.patches as patches
-from matplotlib.animation import FuncAnimation
-import argparse
-import networkx as nx  # Import networkx to create and manipulate complex networks
+import random
 
+# Define the Node and Network classes
 class Node:
-    def __init__(self, value, index, connections=None):
-        """Initialize a node with a value, an index, and an optional list of connections."""
-        self.value = value
+    def __init__(self, index):
         self.index = index
-        self.connections = connections if connections is not None else []
+        self.connections = []
+        self.value = random.choice([-1, 1])  # Ising model spin initialization
 
 class Network:
-    def __init__(self, nodes=None):
-        """Initialize a network with an optional list of nodes."""
-        self.nodes = nodes if nodes is not None else []
+    def __init__(self, size):
+        self.nodes = [Node(i) for i in range(size)]
+        self.size = size
 
-    def make_random_network(self, N, connection_probability):
-        """Generate a random network with N nodes and a given probability of connection between nodes."""
-        self.nodes = [Node(np.random.random(), i, []) for i in range(N)]
-        for i in range(N):
-            for j in range(i + 1, N):
-                if np.random.random() < connection_probability:
-                    self.nodes[i].connections.append(j)
-                    self.nodes[j].connections.append(i)
-
-    def make_small_world_network(self, N, rewiring_prob):
-        """Create a small world network with N nodes and a specific rewiring probability."""
-        G = nx.watts_strogatz_graph(N, k=4, p=rewiring_prob)  # Use Watts-Strogatz model
-        self.nodes = [Node(np.random.choice([-1, 1]), i, []) for i in range(N)]
-        for i, j in G.edges():
+    def add_edge(self, i, j):
+        if i != j and j not in self.nodes[i].connections:
             self.nodes[i].connections.append(j)
             self.nodes[j].connections.append(i)
 
-    def ising_model_update(self):
-        """Update node values based on the Ising model: nodes take the sign of the sum of their neighbors' values."""
-        for node in self.nodes:
-            total_influence = sum(self.nodes[i].value for i in node.connections)
-            node.value = 1 if total_influence >= 0 else -1
+    def make_small_world(self, neighbor_k=2, rewire_prob=0.1):
+        # Create ring lattice first
+        for i in range(self.size):
+            for offset in range(1, neighbor_k + 1):
+                self.add_edge(i, (i + offset) % self.size)
+                self.add_edge(i, (i - offset + self.size) % self.size)
 
-    def deffuant_model_update(self, threshold=0.3):
-        """Update node values based on the Deffuant model: nodes average their values if their opinions are close enough."""
-        for node in self.nodes:
-            for neighbor in node.connections:
-                if abs(node.value - self.nodes[neighbor].value) < threshold:
-                    mid_value = (node.value + self.nodes[neighbor].value) / 2
-                    node.value = mid_value
-                    self.nodes[neighbor].value = mid_value
+        # Rewiring process
+        for i in range(self.size):
+            for offset in range(1, neighbor_k + 1):
+                if random.random() < rewire_prob:
+                    j = (i + offset) % self.size
+                    new_j = random.randint(0, self.size - 1)
+                    while new_j == i or new_j in self.nodes[i].connections:
+                        new_j = random.randint(0, self.size - 1)
+                    # Remove original connection and add new one
+                    self.nodes[i].connections.remove(j)
+                    self.nodes[j].connections.remove(i)
+                    self.add_edge(i, new_j)
 
-def plot_network(network, model='ising', num_frames=50, interval=200):
-    """Plot the network and animate it using the specified model."""
-    fig, ax = plt.subplots()
-    num_nodes = len(network.nodes)
-    radius = 10  # Define the radius for laying out nodes in a circle
+    def visualize(self):
+        plt.figure(figsize=(10, 10))
+        ax = plt.gca()
+        ax.set_aspect('equal')
+        ax.axis('off')
+        angles = np.linspace(0, 2 * np.pi, self.size, endpoint=False)
+        x, y = np.cos(angles), np.sin(angles)
+        colors = ['red' if node.value == -1 else 'blue' for node in self.nodes]
+        for i, node in enumerate(self.nodes):
+            for conn in node.connections:
+                plt.plot([x[i], x[conn]], [y[i], y[conn]], 'k-', alpha=0.3)
+            plt.scatter(x[i], y[i], c=colors[i], s=100)
+        plt.show()
 
-    # Position nodes in a circle for better visualization
-    angles = np.linspace(0, 2 * np.pi, num_nodes, endpoint=False)
-    x = radius * np.cos(angles)
-    y = radius * np.sin(angles)
+def ising_model(network, steps=1000, temperature=1.0):
+    for _ in range(steps):
+        for node in network.nodes:
+            energy_change = 2 * node.value * sum(network.nodes[neighbor].value for neighbor in node.connections)
+            if energy_change < 0 or random.random() < np.exp(-energy_change / temperature):
+                node.value *= -1
+def main():
+    parser = argparse.ArgumentParser(description="Ising Model Simulation on a Network.")
+    parser.add_argument('-size', type=int, default=20, help='Number of nodes in the network')
+    parser.add_argument('-steps', type=int, default=1000, help='Number of simulation steps')
+    parser.add_argument('-temperature', type=float, default=2.0, help='Temperature for the Ising model')
+    parser.add_argument('-neighborhood', type=int, default=2, help='Each node is connected to `neighborhood` nearest neighbors')
+    parser.add_argument('-rewiring_probability', type=float, default=0.1, help='Probability to rewire each edge')
+    parser.add_argument('-ising_model', action='store_true', help='Run the Ising model simulation.')
+    parser.add_argument('-use_network', type=int, help='Size of the network if using network model')
 
-    # Initialize plot elements
-    node_plot = ax.scatter(x, y, c=[node.value for node in network.nodes], cmap='viridis', s=100)
-    lines = []
-    for i, node in enumerate(network.nodes):
-        for conn_index in node.connections:
-            line, = ax.plot([x[i], x[conn_index]], [y[i], y[conn_index]], '-', color='black', alpha=0.5)
-            lines.append(line)
+    args = parser.parse_args()
 
-    circle = patches.Circle((0, 0), radius, edgecolor='orange', facecolor='none', linewidth=2)
-    ax.add_patch(circle)
-    ax.set_aspect('equal')
-    ax.axis('off')
+    if args.use_network:
+        network = Network(args.use_network)
+        network.make_small_world(args.neighborhood, args.rewiring_probability)
+        ising_model(network, args.steps, args.temperature)
+        network.visualize()
+    elif args.ising_model:
+        # Implement grid-based Ising model here if needed
+        print("Grid-based Ising model not implemented.")
 
-    def update(frame):
-        """Update function for animation, applies model updates to node values."""
-        if model == 'ising':
-            network.ising_model_update()
-        elif model == 'deffuant':
-            network.deffuant_model_update()
-        node_plot.set_array(np.array([node.value for node in network.nodes]))
-        return node_plot, *lines
-
-    ani = FuncAnimation(fig, update, frames=num_frames, interval=interval, blit=True)
-    plt.show()
+if __name__ == "__main__":
+    main()
 
 def main():
     parser = argparse.ArgumentParser()
