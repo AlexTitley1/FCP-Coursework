@@ -421,7 +421,7 @@ This section contains code for the main function- you should write some code for
 # Define the Node and Network classes
 
 
-'''
+
 class Network:
     def __init__(self, size):
         self.nodes = [Node(i) for i in range(size)]
@@ -465,9 +465,9 @@ class Network:
                 plt.plot([x[i], x[conn]], [y[i], y[conn]], 'k-', alpha=0.3)
             plt.scatter(x[i], y[i], c=colors[i], s=100)
         plt.show()
-'''
 
-def ising_model(network, steps=1000, temperature=1.0):
+
+def ising_model_(network, steps=1000, temperature=1.0):
     for _ in range(steps):
         for node in network.nodes:
             energy_change = 2 * node.value * sum(network.nodes[neighbor].value for neighbor in node.connections)
@@ -490,18 +490,18 @@ def main():
                         help='Run the ising model test functions to ensure integrity.')
     parser.add_argument("-network", type=int)
     parser.add_argument("-test_network", action="store_true")
-    parser.add_argument('-use_network', type=int, default=10, help='Size of the network')
+
     parser.add_argument('-size', type=int, default=20, help='Number of nodes in the network')
     parser.add_argument('-steps', type=int, default=1000, help='Number of simulation steps')
     parser.add_argument('-temperature', type=float, default=2.0, help='Temperature for the Ising model')
     parser.add_argument('-neighborhood', type=int, default=2,
                         help='Each node is connected to `neighborhood` nearest neighbors')
     parser.add_argument('-rewiring_probability', type=float, default=0.1, help='Probability to rewire each edge')
-    parser.add_argument('-ising_model', action='store_true', help='Run the Ising model simulation.')
+    parser.add_argument('-ising_model_', action='store_true', help='Run the Ising model simulation.')
     parser.add_argument('-use_network', type=int, help='Size of the network if using network model')
 
     args = parser.parse_args()
-    net = Network()
+
     if args.defuant:
         defuant(args.beta, args.threshold)
     elif args.alpha <= 0:
@@ -519,9 +519,9 @@ def main():
     elif args.use_network:
         network = Network(args.use_network)
         network.make_small_world(args.neighborhood, args.rewiring_probability)
-        ising_model(network, args.steps, args.temperature)
+        ising_model_(network, args.steps, args.temperature)
         network.visualize()
-    elif args.ising_model:
+    elif args.ising_model_:
         # Implement grid-based Ising model here if needed
         print("Grid-based Ising model not implemented.")
 
