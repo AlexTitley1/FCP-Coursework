@@ -395,11 +395,7 @@ def test_defuant():
 This section contains code for the main function- you should write some code for handling flags here
 ==============================================================================================================
 '''
-import argparse
-import numpy as np
-import matplotlib.pyplot as plt
-import random
-
+# Task 5
 # Define the Node and Network classes
 class Node:
     def __init__(self, index):
