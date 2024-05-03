@@ -7,6 +7,7 @@ The script generates two plots:
 A scatter plot showing the evolution of opinions for each time step.
 A histogram showing the final distribution of opinions.
 Task 3
+This script creates a random network of a chosen number of nodes which the user specifies. It calculates the mean dgeree, mean path length, mean clustering coefficient and also a plot of this random network. To run task three, use the flag "-network N", where N is an integer of chosing to represent the number of nodes. To test the network run the flag "-test_network".
 
 Task 4
 
